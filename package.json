@@ -7,7 +7,7 @@
     "dev": "vite --open index.html",
     "clean": "rimraf dist",
     "build:js": "esbuild js/app.js --minify --outdir=dist/js",
-    "copy:static": "cpx \"index.html\" dist && cpx \".nojekyll\" dist && cpx \"*.css\" dist && cpx \"css/**\" dist/css && cpx \"img/**\" dist/img && cpx \"fonts/**\" dist/fonts && cpx \"favicon.*\" dist",
+    "copy:static": "cpx \"index.html\" dist && cpx \".nojekyll\" dist && cpx \"CNAME\" dist && cpx \"*.css\" dist && cpx \"css/**\" dist/css && cpx \"img/**\" dist/img && cpx \"fonts/**\" dist/fonts && cpx \"favicon.*\" dist",
     "build": "npm run clean && npm run build:js && npm run copy:static",
     "preview": "http-server dist -p 8080 -c-1"
   },
