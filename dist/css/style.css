@@ -151,6 +151,52 @@ h1.brand{
 .win .titlebar{ cursor:grab; filter: grayscale(.2) brightness(.95); }
 .win .titlebar.dragging{ cursor:grabbing; }
 
+
+/* ==== Titlebar: testi che non sbordano ==== */
+.win .titlebar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.win .titlebar .tb-controls{          /* i bottoni non si comprimono */
+  flex:0 0 auto;
+}
+.win .titlebar .addr{                  /* contenitore dei testi (title/slug) */
+  flex:1 1 auto;
+  min-width:0;                         /* <— fondamentale in flex */
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.win .titlebar .addr > *{
+  min-width:0;                         /* consenti il truncation */
+}
+
+.win .titlebar [data-title],
+.win .titlebar [data-slug]{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;              /* … */
+  white-space:nowrap;                  /* una riga */
+}
+
+/* su schermi piccoli nascondi lo slug per non stringere troppo */
+@media (max-width: 560px){
+  .win .titlebar [data-slug]{ display:none; }
+}
+
+/* corpo finestra: evita overflow del testo lungo nelle descrizioni */
+.win [data-desc]{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+/* (opzionale) etichette sotto le icone desktop più elastiche */
+.icon .label{
+  max-width: 96px;
+  overflow-wrap:anywhere;
+  text-align:center;
+}
 /* === Icona "X" per i bottoni di chiusura (’90s pixel vibe) === */
 .tb-btn{ position: relative; display:inline-flex; align-items:center; justify-content:center; }
 .tb-btn[data-action="close"]::before,
