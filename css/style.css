@@ -112,7 +112,7 @@ h1.brand{
 .line::before{content:"› ";color:#005a00;font-weight:bold}
 
 /* Dock pulsanti ’90s (in basso a destra) */
-.action-dock{position:fixed;right:16px;bottom:16px;display:flex;gap:10px;z-index:6}
+.action-dock{position:fixed;right:16px;bottom:16px;display:flex;gap:10px;z-index:9999; pointer-events: auto;}
 .win95-btn{
   min-width:110px;padding:10px 18px;font-weight:700;font-size:14px;color:#000;background:#c0c0c0;
   border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:4px;

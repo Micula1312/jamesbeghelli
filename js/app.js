@@ -784,49 +784,76 @@ function openProjectById(pid){
 }
 
 /* ========== 13) Finestra Bio ========== */
-function openBio(){
-  // se esiste già, porta davanti
+
+function openBio(e){
+  try { e?.preventDefault?.(); } catch {}
+  // 1) template presente?
+  if (!bioTpl) { showToast('Template Bio mancante'); return; }
+
+  // 2) se già aperta → porta davanti
   const existing = document.querySelector('.win[data-pid="bio"]');
   if (existing){ bringToFront(existing); return; }
 
-  const node = bioTpl.content.firstElementChild.cloneNode(true);
+  // 3) clona template in modo sicuro
+  const node = bioTpl.content?.firstElementChild?.cloneNode(true);
+  if (!node) { showToast('Template Bio vuoto'); return; }
+
   node.dataset.pid = 'bio';
-  node.style.left = (24 + Math.random()*60) + 'px';
-  node.style.top  = (24 + Math.random()*40) + 'px';
-  node.style.zIndex = ++zTop;
+  Object.assign(node.style, {
+    left: (24 + Math.random()*60)+'px',
+    top:  (24 + Math.random()*40)+'px',
+    zIndex: ++zTop
+  });
+  if (getComputedStyle(node).position !== 'fixed') node.style.position = 'fixed';
   node.classList.add('active');
 
-  // riempi testo
-  const body = node.querySelector('[data-bio]');
+  // 4) corpo bio: se manca [data-bio] lo creo
+  let body = node.querySelector('[data-bio]');
+  if (!body){
+    body = document.createElement('div');
+    body.className = 'bio-body';
+    body.setAttribute('data-bio','');
+    (node.querySelector('.content') || node).appendChild(body);
+  }
   body.innerHTML = BIO_TEXT
     .replace(/\n/g,'<br>')
     .replace(/https?:\/\/\S+/g, url => `<a href="${url}" target="_blank">${url}</a>`);
-  node.style.width = 'min(60vw,700px)';
-  node.style.height = 'min(55vh,520px)';
 
-  node.addEventListener('mousedown', ()=> bringToFront(node));
-  node.querySelector('[data-action="close"]').addEventListener('click', ()=> node.remove());
-  node.querySelector('[data-action="min"]').addEventListener('click', ()=>{
+  // 5) bottoni finestra: aggiungi listener solo se esistono
+  const btnClose = node.querySelector('[data-action="close"]');
+  const btnMin   = node.querySelector('[data-action="min"]');
+  const btnMax   = node.querySelector('[data-action="max"]');
+
+  if (btnClose) btnClose.addEventListener('click', ()=> node.remove());
+  if (btnMin) btnMin.addEventListener('click', ()=>{
     node.dataset.minimized = node.dataset.minimized ? '' : '1';
     node.style.height = node.dataset.minimized ? '44px' : 'min(65vh,620px)';
   });
-  node.querySelector('[data-action="max"]').addEventListener('click', ()=>{
-    if(node.dataset.maximized){
+  if (btnMax) btnMax.addEventListener('click', ()=>{
+    if (node.dataset.maximized){
       node.dataset.maximized = '';
       node.style.left='20px'; node.style.top='20px';
       node.style.width='min(70vw,900px)'; node.style.height='min(65vh,620px)';
-    }else{
+    } else {
       node.dataset.maximized = '1';
       node.style.left='0px'; node.style.top='0px';
       node.style.width='100vw'; node.style.height='100vh';
     }
   });
 
+  // 6) drag/resize & mount
   attachDrag(node);
-  attachResize(node, 360, 260); // bio stringibile
+  attachResize(node, 360, 260);
   document.body.appendChild(node);
+  bringToFront(node);
+  node.tabIndex = -1;
+  node.focus({ preventScroll: true });
 }
+
+// Listener desktop + mobile
 btnBio?.addEventListener('click', openBio);
+btnBio?.addEventListener('touchend', (e)=>{ e.preventDefault(); openBio(e); }, { passive:false });
+
 
 /* ========== 14) Wallpaper runtime + pulsante switch ========== */
 function setDesktopWallpaper(src, { mode='cover', position='center', repeat='no-repeat' } = {}){
