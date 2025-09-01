@@ -646,10 +646,10 @@ function attachResize(win, minW=360, minH=240){
 
 /* ========== 12) Finestre progetto ========== */
 function openProjectById(pid){
-  const p = projects.find(x=>x.id===pid);
-  if(!p || !winTpl) return;
+  const p = projects.find(x => x.id === pid);
+  if (!p || !winTpl) return;
 
-  // Se esiste già, porta davanti e basta
+  // se esiste già, porta davanti
   const existing = document.querySelector(`.win[data-pid="${pid}"]`);
   if (existing) { bringToFront(existing); return; }
 
@@ -659,53 +659,78 @@ function openProjectById(pid){
   node.style.top  = (24 + Math.random()*40) + 'px';
   node.style.zIndex = ++zTop;
   node.classList.add('active');
+  if (getComputedStyle(node).position !== 'fixed') node.style.position = 'fixed';
 
-  if(getComputedStyle(node).position !== 'fixed'){
-    node.style.position = 'fixed';
+  // --- fill contenuti ---
+  const titleEl = node.querySelector('[data-title]');
+  const slugEl  = node.querySelector('[data-slug]');
+  const imgEl   = node.querySelector('[data-img]');
+  const descEl  = node.querySelector('[data-desc]');
+
+  if (titleEl) titleEl.textContent = p.title || '';
+  if (titleEl) titleEl.title = p.title || '';
+
+  if (slugEl){
+    const fullSlug = p.slug || '';
+    const tail = fullSlug.split('/').filter(Boolean).pop() || fullSlug;
+    slugEl.textContent = tail;   // mostra solo l’ultima parte
+    slugEl.title = fullSlug;     // tooltip con lo slug completo
   }
 
-  // Fill contenuti
-  node.querySelector('[data-title]').textContent = p.title;
-  node.querySelector('[data-slug]').textContent  = p.slug;
+  if (descEl) descEl.textContent = p.desc || '';
 
-    // tooltip con il testo completo (utile su mobile)
-  node.querySelector('[data-title]').title = p.title || '';
-  node.querySelector('[data-slug]').title  = p.slug  || '';
-  const imgEl = node.querySelector('[data-img]');
-  const descEl= node.querySelector('[data-desc]');
-
-  node.__state = { idx:0, items:p.items.slice(), project:p };
+  // stato locale finestra
+  node.__state = { idx: 0, items: Array.isArray(p.items) ? p.items.slice() : [], project: p };
 
   function show(i){
     const s = node.__state;
+    if (!s.items.length){
+      if (imgEl){
+        imgEl.removeAttribute('src');
+        imgEl.alt = 'Nessuna immagine';
+      }
+      if (descEl && !descEl.textContent) descEl.textContent = 'Nessuna immagine disponibile.';
+      return;
+    }
     s.idx = (i + s.items.length) % s.items.length;
     const src = s.items[s.idx];
     const pre = new Image();
     pre.src = src;
-    pre.onload = ()=>{
-      imgEl.src = src; // object-fit: contain evita deformazioni
-      descEl.textContent = p.desc || '';
-    };
+    pre.onload = ()=> { if (imgEl) { imgEl.src = src; imgEl.alt = p.title || 'immagine'; } };
+    pre.onerror = ()=> { if (descEl) descEl.textContent = 'Errore nel caricamento dell’immagine.'; };
   }
   show(0);
 
-  // Navigazione interna
-  node.querySelector('[data-prev]').addEventListener('click', ()=> show(node.__state.idx - 1));
-  node.querySelector('[data-next]').addEventListener('click', ()=> show(node.__state.idx + 1));
+  // --- navigazione interna ---
+  const btnPrev = node.querySelector('[data-prev]');
+  const btnNext = node.querySelector('[data-next]');
+  if (btnPrev) btnPrev.addEventListener('click', ()=> show(node.__state.idx - 1));
+  if (btnNext) btnNext.addEventListener('click', ()=> show(node.__state.idx + 1));
 
-  // Bottoni finestra
+  // supporto tastiera (freccia sinistra/destra, Esc per chiudere)
+  node.addEventListener('keydown', (e)=>{
+    if (e.key === 'ArrowLeft')  show(node.__state.idx - 1);
+    if (e.key === 'ArrowRight') show(node.__state.idx + 1);
+    if (e.key === 'Escape')     node.remove();
+  });
+
+  // --- bottoni finestra ---
   node.addEventListener('mousedown', ()=> bringToFront(node));
-  node.querySelector('[data-action="close"]').addEventListener('click', ()=> node.remove());
-  node.querySelector('[data-action="min"]').addEventListener('click', ()=>{
+  const btnClose = node.querySelector('[data-action="close"]');
+  const btnMin   = node.querySelector('[data-action="min"]');
+  const btnMax   = node.querySelector('[data-action="max"]');
+
+  if (btnClose) btnClose.addEventListener('click', ()=> node.remove());
+  if (btnMin) btnMin.addEventListener('click', ()=>{
     node.dataset.minimized = node.dataset.minimized ? '' : '1';
     node.style.height = node.dataset.minimized ? '44px' : 'min(65vh,620px)';
   });
-  node.querySelector('[data-action="max"]').addEventListener('click', ()=>{
-    if(node.dataset.maximized){
+  if (btnMax) btnMax.addEventListener('click', ()=>{
+    if (node.dataset.maximized){
       node.dataset.maximized = '';
       node.style.left='20px'; node.style.top='20px';
       node.style.width='min(70vw,900px)'; node.style.height='min(65vh,620px)';
-    }else{
+    } else {
       node.dataset.maximized = '1';
       node.style.left='0px'; node.style.top='0px';
       node.style.width='100vw'; node.style.height='100vh';
@@ -714,8 +739,14 @@ function openProjectById(pid){
 
   attachDrag(node);
   attachResize(node, 320, 220); // finestre progetto stringibili
+
   document.body.appendChild(node);
+  bringToFront(node);
+  // focus per frecce/Esc
+  node.tabIndex = -1;
+  node.focus({ preventScroll: true });
 }
+
 
 /* ========== 13) Finestra Bio ========== */
 function openBio(){
