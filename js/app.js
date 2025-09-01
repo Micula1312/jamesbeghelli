@@ -854,11 +854,6 @@ function attachWallpaperButtonToBar(){
   }
 }
 
-function nextWallpaper(){
-  if(!WALLPAPERS.length) return;
-  wpIndex = (wpIndex + 1) % WALLPAPERS.length;
-  applyWallpaper(wpIndex);
-}
 
 // Pulsante flottante per switchare background
 
