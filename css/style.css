@@ -5,9 +5,10 @@ body{
   font-family:"MS Sans Serif","Tahoma",Verdana,Arial,sans-serif;
 }
 
+/* ===== Desktop background ===== */
 #desktop{
-  background: url('img/wallpapers/tile.png') repeat;
-  image-rendering: pixelated;
+  background:url('img/wallpapers/tile.png') repeat;
+  image-rendering:pixelated;
 }
 
 #fx-layer{ position:fixed; z-index:9999999; inset:0; overflow:visible; pointer-events:none; }
@@ -24,18 +25,38 @@ body{
   border:2px solid; border-color:#fff #404040 #404040 #fff; border-radius:6px;
   box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9a9a9a,0 8px 24px rgba(0,0,0,.45);
 }
+
+/* ===== Titlebar ===== */
 .titlebar{ cursor:grab }
 .titlebar.dragging{ cursor:grabbing }
 .browser.dragging{ user-select:none }
+
+/* layout base */
 .titlebar{
-  display:flex;align-items:center;gap:8px;padding:6px 8px;
-  background:linear-gradient(#00008b,#1e3a8a);color:#fff;font-weight:700;
-  user-select:none;border-radius:6px 6px 0 0;
+  display:flex; align-items:center; gap:8px; padding:6px 8px;
+  background:linear-gradient(#00008b,#1e3a8a); color:#fff; font-weight:700;
+  user-select:none; border-radius:6px 6px 0 0;
 }
-.tb-controls{margin-left:auto;display:flex;gap:6px}
-.tb-btn{width:16px;height:16px;background:#c0c0c0;border:2px solid;
+
+/* FIX: ellissi robusta nel viewer */
+.browser .titlebar > *{ min-width:0; }             /* necessario per ellissi nei flex */
+.browser .titlebar .tb-controls{ flex:0 0 auto; margin-left:auto; }
+.browser .titlebar .caption,
+.browser .titlebar [data-title],
+.browser .titlebar .tb-title{
+  flex:1 1 auto; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* pulsanti finestra */
+.tb-controls{ flex:0 0 auto; display:flex; gap:6px }
+.tb-btn{
+  width:16px;height:16px;background:#c0c0c0;border:2px solid;
   border-color:#fff #404040 #404040 #fff;border-radius:2px;
-  box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9a9a9a}
+  box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #9a9a9a
+}
+
+/* ===== Menubar & Toolbar ===== */
 .menubar{
   display:flex;gap:16px;padding:6px 8px;background:#dcdcdc;
   border-top:1px solid #fff;border-bottom:1px solid #9a9a9a;font-size:13px;user-select:none;
@@ -52,6 +73,11 @@ body{
   border:2px inset #9a9a9a;border-radius:2px;font-family:"Courier New",monospace;font-size:13px
 }
 .addr .scheme{color:#005a00}.addr .host{color:#000}
+
+/* FIX: su mobile togli l’address bar per dare spazio al titolo */
+@media (max-width:560px){
+  .toolbar .addr{ display:none; }
+}
 
 /* ===== Viewport (immagine + crumble) ===== */
 .content{position:relative;height:calc(100% - 92px);background:#808080;padding:8px}
@@ -108,9 +134,9 @@ h1.brand{
 @keyframes toast-in{from{transform:translateY(6px)}to{transform:translateY(0)}}
 @keyframes toast-out{to{transform:translateY(6px)}}
 
-/* Comete (random→random, a scatti, niente fade) */
+/* Comete */
 .comet{ pointer-events:none; will-change:transform; contain:layout paint; }
-.comet img{ image-rendering: pixelated; }
+.comet img{ image-rendering:pixelated; }
 .tail{
   position:absolute;left:50%;top:50%;width:180px;height:8px;transform-origin:100% 50%;transform:translate(-100%,-50%);
   background:repeating-linear-gradient(90deg,rgba(255,255,255,.85) 0 6px,rgba(255,255,255,.25) 6px 12px,transparent 12px 18px);
@@ -120,9 +146,9 @@ h1.brand{
 /* ===== Desktop con icone ===== */
 .desktop{
   position:fixed; inset:0; z-index:2;
-  background: transparent; /* lascia il tuo sfondo sotto */
-  display:grid; grid-template-columns: repeat(auto-fill, 90px);
-  grid-auto-rows: 90px; gap: 8px; align-content:start; padding:14px;
+  background:transparent; /* lascia il tuo sfondo sotto */
+  display:grid; grid-template-columns:repeat(auto-fill,90px);
+  grid-auto-rows:90px; gap:8px; align-content:start; padding:14px;
   user-select:none;
 }
 .icon{
@@ -135,80 +161,63 @@ h1.brand{
 .icon .label{ margin-top:6px; font-size:12px; color:#fff; text-align:center; text-shadow:0 1px 0 #000; }
 .icon img.folder-icon { width:56px; height:56px; }
 
-/* ===== Finestra progetto (stile come .browser) ===== */
+/* ===== Finestra progetto ===== */
 .win{
   position:fixed; z-index:10; width:min(70vw,900px); height:min(65vh,620px);
   left:20px; top:20px; background:#c0c0c0;
   border:2px solid; border-color:#fff #404040 #404040 #fff; border-radius:6px;
-  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #9a9a9a, 0 8px 24px rgba(0,0,0,.45);
+  box-shadow:inset 1px 1px 0 #fff, inset -1px -1px 0 #9a9a9a, 0 8px 24px rgba(0,0,0,.45);
 }
 .win .content{ position:relative; height:calc(100% - 92px); background:#808080; padding:8px; }
 .win .viewport{ position:relative; width:100%; height:100%; border:2px inset #9a9a9a; background:#000; overflow:hidden; }
 .win .vpImg, .win [data-img]{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; }
 
+/* Titolo attivo/inattivo */
+.win.active .titlebar{ filter:none; }
+.win .titlebar{ cursor:grab; filter:grayscale(.2) brightness(.95); }
 
-
-/* titolo attivo/inattivo */
-.win.active .titlebar{ filter: none; }
-.win .titlebar{ cursor:grab; filter: grayscale(.2) brightness(.95); }
-.win .titlebar.dragging{ cursor:grabbing; }
-
-.win[data-pid="bio"] .titlebar [data-slug]{ display:none; }
-
-/* ==== Titlebar: testi che non sbordano ==== */
-/* Titlebar: niente sbordi, truncation robusta */
+/* ==== Titlebar finestre: niente sbordi ==== */
 .win .titlebar{ display:flex; align-items:center; gap:6px; }
 .win .titlebar .tb-controls{ flex:0 0 auto; }
 .win .titlebar .addr{ flex:1 1 auto; min-width:0; display:flex; gap:6px; align-items:center; overflow:hidden; }
 .win .titlebar .addr > *{ min-width:0; }
 .win .titlebar [data-title],
-.win .titlebar [data-slug]{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.win .titlebar [data-slug]{
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;
+}
 
-/* su mobile puoi nascondere il titolo per lasciare solo lo slug (o viceversa) */
-@media (max-width: 480px){
+/* su mobile lascia solo lo slug (o viceversa) */
+@media (max-width:480px){
   .win .titlebar [data-title]{ display:none; }
 }
 
-/* Corpo: testi lunghi non sforano */
+/* Corpo finestra: testi lunghi */
 .win [data-desc]{ overflow-wrap:anywhere; word-break:break-word; }
 
-/* (opzionale) etichette sotto le icone desktop più elastiche */
-.icon .label{
-  max-width: 96px;
-  overflow-wrap:anywhere;
-  text-align:center;
-}
-/* === Icona "X" per i bottoni di chiusura (’90s pixel vibe) === */
-.tb-btn{ position: relative; display:inline-flex; align-items:center; justify-content:center; }
+/* Etichette icone più elastiche */
+.icon .label{ max-width:96px; overflow-wrap:anywhere; text-align:center; }
+
+/* === Icona "X" stile ’90s === */
+.tb-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; }
 .tb-btn[data-action="close"]::before,
 .tb-btn[data-action="close"]::after{
   content:"";
   position:absolute;
-  width:12px;             /* lunghezza delle “aste” della X */
-  height:2px;             /* spessore tratto */
-  background:#000;        /* colore tratto */
-  image-rendering: pixelated;
-  transform-origin:center;
+  width:12px; height:2px; background:#000; image-rendering:pixelated; transform-origin:center;
 }
-.tb-btn[data-action="close"]::before{ transform: rotate(45deg); }
-.tb-btn[data-action="close"]::after { transform: rotate(-45deg); }
-
-/* Stato hover/active in stile 3D */
-.tb-btn[data-action="close"]:hover{
-  background:#e6caca; /* lieve tinta “rossina” anni ’90 */
-}
+.tb-btn[data-action="close"]::before{ transform:rotate(45deg); }
+.tb-btn[data-action="close"]::after { transform:rotate(-45deg); }
+.tb-btn[data-action="close"]:hover{ background:#e6caca; }
 .tb-btn[data-action="close"]:active{
-  border-color:#404040 #fff #fff #404040; /* inverti rilievo */
-  box-shadow: inset 1px 1px 0 #9a9a9a, inset -1px -1px 0 #fff;
-  transform: translateY(1px);
+  border-color:#404040 #fff #fff #404040;
+  box-shadow:inset 1px 1px 0 #9a9a9a, inset -1px -1px 0 #fff;
+  transform:translateY(1px);
 }
-
 
 /* ===== Bio window ===== */
 .bio-body{
   position:absolute; inset:12px; overflow:auto;
   background:#000; color:#d7ffd7; /* CRT vibes */
-  /*border:2px inset #9a9a9a; border-radius:2px; padding:12px;*/
   font-family:"Courier New",monospace; font-size:14px; line-height:1.5;
-  white-space:pre-wrap;  /* rispetta \n */
+  white-space:pre-wrap;
 }

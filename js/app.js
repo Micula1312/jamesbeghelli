@@ -7,6 +7,7 @@
    03) Helpers generici
    04) Layer effetti (fx-layer) sempre on-top
    05) Riferimenti DOM
+   05-bis) Titolo viewer responsive (brand corto/lungo)
    06) Viewer principale (init, sgretolamento, toolbar)
    07) Toast
    08) Cometa (1 sticker) — preload + traiettoria sempre visibile
@@ -21,7 +22,7 @@
    --------------------------------------------------------- */
 
 /* ========== 01) Versione & Costanti percorso ========== */
-const JB_VERSION = '2025-09-01-06';
+const JB_VERSION = '2025-09-01-10';
 console.info('[JAMES] app.js version', JB_VERSION);
 
 /* ========== 02) Config & Assets ========== */
@@ -33,10 +34,9 @@ const images = [
   'img/image6.jpeg','img/image7.jpeg','img/image8.jpeg','img/image9.jpeg'
 ];
 
-// Wallpapers: percorsi dentro /img/wallpapers come richiesto
 /* ===== Wallpapers (desktop) ===== */
 const WALLPAPERS = [
-  { src: 'img/wallpapers/wallpaper1.jpg', opts: { mode:'cover', position:'center', repeat:'no-repeat' } },
+  { src: 'img/wallpapers/wallpaper1.jpg',  opts: { mode:'cover', position:'center', repeat:'no-repeat' } },
   { src: 'img/wallpapers/wallpaper2.jpeg', opts: { mode:'cover', position:'center', repeat:'no-repeat' } },
 ];
 let wpIndex = 0;
@@ -47,6 +47,10 @@ const stickers = ['img/stickers/sticker.png'];
 // Icone cartelle / viewer
 const FOLDER_ICON_SRC = 'img/ui/folder-sfoglia.png';
 const VIEWER_ICON_SRC = 'img/ui/viewer-phone.png'; // 📱 icona viewer
+
+// Titolo viewer (brand, non lo slug)
+const VIEWER_TITLE_LONG  = 'James Beghelli Viewer';
+const VIEWER_TITLE_SHORT = 'J. Beghelli';
 
 // Progetti / Cartelle
 const projects = [
@@ -85,17 +89,6 @@ function fitRect(nw, nh, vw, vh, mode='contain'){
   const fullW = (mode==='contain') ? (ar > varr) : (ar < varr);
   if(fullW){ const w = vw, h = vw/ar; return { x:0, y:(vh-h)/2, w, h }; }
   const h = vh, w = vh*ar; return { x:(vw-w)/2, y:0, w, h };
-}
-function updateViewerTitle(){
-  if (!viewerTitleEl || !viewerSlugEl) return;
-  const full = state.src || images[state.index] || '';
-  const tail = full.split('/').filter(Boolean).pop() || full;
-
-  viewerTitleEl.textContent = 'Viewer';
-  viewerTitleEl.title = 'Viewer';
-
-  viewerSlugEl.textContent = tail;   // solo la coda (es. image5.jpeg)
-  viewerSlugEl.title = full;         // tooltip: path completo
 }
 
 /* ========== 04) Layer effetti (fx-layer) sempre on-top ========== */
@@ -142,6 +135,22 @@ const mainBtnMax   = document.querySelector('.browser .tb-controls [data-action=
 const viewerTitleEl = document.querySelector('.browser [data-title]');
 const viewerSlugEl  = document.querySelector('.browser [data-slug]');
 
+/* ==== 05-bis) Titolo viewer responsive (brand) ==== */
+function syncViewerWindowTitle(){
+  const el = viewerTitleEl || document.querySelector(
+    '.browser .titlebar [data-title], .browser .titlebar .tb-title, .browser .titlebar .caption'
+  );
+  if (!el) return;
+  const w = (browserEl?.getBoundingClientRect?.().width) || window.innerWidth;
+  el.textContent = (w < 420) ? VIEWER_TITLE_SHORT : VIEWER_TITLE_LONG;
+}
+window.addEventListener('resize', syncViewerWindowTitle);
+if (typeof ResizeObserver !== 'undefined' && browserEl) {
+  const ro = new ResizeObserver(() => syncViewerWindowTitle());
+  ro.observe(browserEl);
+}
+syncViewerWindowTitle();
+
 /* ========== 06) Viewer principale (init, sgretolamento, toolbar) ========== */
 const state = { index:0, src:null, natW:0, natH:0 };
 
@@ -152,6 +161,15 @@ function addLine(text){
   line.textContent = text;
   logBody.appendChild(line);
   logBody.scrollTop = logBody.scrollHeight;
+}
+
+// Aggiorna SOLO lo slug (non il titolo brand)
+function updateViewerTitle(){
+  if (!viewerSlugEl) return;
+  const full = state.src || images[state.index] || '';
+  const tail = full.split('/').filter(Boolean).pop() || full;
+  viewerSlugEl.textContent = tail;   // solo la coda (es. image5.jpeg)
+  viewerSlugEl.title = full;         // tooltip: path completo
 }
 
 function setInitialBackground(){
@@ -188,8 +206,11 @@ function changeImageTo(nextIndex){
     pre.src = nextSrc;
     pre.onload = ()=>{
       state.index = (nextIndex + images.length) % images.length;
-      state.src = nextSrc; state.natW = pre.naturalWidth; state.natH = pre.naturalHeight;
-      vpImg.src = nextSrc;
+      state.src   = nextSrc;
+      state.natW  = pre.naturalWidth;
+      state.natH  = pre.naturalHeight;
+      vpImg.src   = nextSrc;
+      updateViewerTitle(); // <-- IMPORTANTE: aggiorna slug anche al primo cambio
     };
     return;
   }
@@ -201,11 +222,13 @@ function changeImageTo(nextIndex){
     const rect = fitRect(prev.natW, prev.natH, vw, vh, FIT_MODE);
 
     vpImg.src = nextSrc;
-    updateViewerTitle();
+
     state.index = (nextIndex + images.length) % images.length;
     state.src   = nextSrc;
     state.natW  = preload.naturalWidth;
     state.natH  = preload.naturalHeight;
+
+    updateViewerTitle();
 
     const wrap = document.createElement('div');
     wrap.className = 'crumble';
@@ -378,7 +401,6 @@ function createCometRandom(){
   }
 }
 
-
 /* ========== 09) Finestra principale: drag & bounds ========== */
 (function enforceFixed(){
   if(browserEl && getComputedStyle(browserEl).position !== 'fixed'){
@@ -453,7 +475,6 @@ function openMainViewer(){
   main.style.display = '';
   ensureInBounds();
   bringToFront(main);
-  bringToFront(main);
   updateViewerTitle();
 }
 mainBtnClose?.addEventListener('click', (e)=>{
@@ -489,25 +510,25 @@ function renderDesktop(){
   if(!desktopEl) return;
   desktopEl.innerHTML = '';
 
-    // --- Icona Viewer ---
-    const viewerIcon = document.createElement('div');
-    viewerIcon.className = 'icon';
-    viewerIcon.tabIndex = 0;
-    viewerIcon.innerHTML = `
+  // --- Icona Viewer ---
+  const viewerIcon = document.createElement('div');
+  viewerIcon.className = 'icon';
+  viewerIcon.tabIndex = 0;
+  viewerIcon.innerHTML = `
     <img class="folder-icon" src="${VIEWER_ICON_SRC}" alt="Viewer">
     <div class="label">Viewer</div>
-    `;
-    desktopEl.appendChild(viewerIcon);
+  `;
+  desktopEl.appendChild(viewerIcon);
 
-    // fallback: se l'immagine non c'è, mostra 📱
-    const vImg = viewerIcon.querySelector('.folder-icon');
-    vImg.addEventListener('error', ()=>{
+  // fallback: se l'immagine non c'è, mostra 📱
+  const vImg = viewerIcon.querySelector('.folder-icon');
+  vImg.addEventListener('error', ()=>{
     const glyph = document.createElement('div');
     glyph.style.fontSize = '36px';
     glyph.style.lineHeight = '36px';
     glyph.textContent = '📱';
     vImg.replaceWith(glyph);
-    });
+  });
 
   viewerIcon.addEventListener('click', ()=>{
     desktopEl.querySelectorAll('.icon.selected').forEach(i=>i.classList.remove('selected'));
@@ -683,8 +704,7 @@ function openProjectById(pid){
   const imgEl   = node.querySelector('[data-img]');
   const descEl  = node.querySelector('[data-desc]');
 
-  if (titleEl) titleEl.textContent = p.title || '';
-  if (titleEl) titleEl.title = p.title || '';
+  if (titleEl) { titleEl.textContent = p.title || ''; titleEl.title = p.title || ''; }
 
   if (slugEl){
     const fullSlug = p.slug || '';
@@ -763,7 +783,6 @@ function openProjectById(pid){
   node.focus({ preventScroll: true });
 }
 
-
 /* ========== 13) Finestra Bio ========== */
 function openBio(){
   // se esiste già, porta davanti
@@ -772,8 +791,8 @@ function openBio(){
 
   const node = bioTpl.content.firstElementChild.cloneNode(true);
   node.dataset.pid = 'bio';
-  node.style.left = (40 + Math.random()*40) + 'px';
-  node.style.top  = (40 + Math.random()*30) + 'px';
+  node.style.left = (24 + Math.random()*60) + 'px';
+  node.style.top  = (24 + Math.random()*40) + 'px';
   node.style.zIndex = ++zTop;
   node.classList.add('active');
 
@@ -861,7 +880,6 @@ function nextWallpaper(){
   applyWallpaper((saved + 1) % WALLPAPERS.length);
 }
 
-
 function ensureButtonsBarStyles(bar){
   if(!document.getElementById('btnbar-style')){
     const st = document.createElement('style');
@@ -895,15 +913,12 @@ function attachWallpaperButtonToBar(){
   }
 }
 
-
-// Pulsante flottante per switchare background
-
 /* ========== 15) Avvio ========== */
 window.addEventListener('load', ()=>{
   centerBrowser();
   setInitialBackground();
   renderDesktop();
-  attachResize(browserEl, 500, 360);
+  attachResize(browserEl, 500, 360); // viewer principale stringibile
   preloadStickers();
 
   // Wallpaper iniziale: usa quello salvato, altrimenti il primo
@@ -913,7 +928,6 @@ window.addEventListener('load', ()=>{
   // Pulsante per switchare i background
   attachWallpaperButtonToBar();
 });
-
 
 /* ========== 16) Ripristino menu destro ========== */
 document.addEventListener('contextmenu', function restore(e){
