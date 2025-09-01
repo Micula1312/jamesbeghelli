@@ -86,6 +86,17 @@ function fitRect(nw, nh, vw, vh, mode='contain'){
   if(fullW){ const w = vw, h = vw/ar; return { x:0, y:(vh-h)/2, w, h }; }
   const h = vh, w = vh*ar; return { x:(vw-w)/2, y:0, w, h };
 }
+function updateViewerTitle(){
+  if (!viewerTitleEl || !viewerSlugEl) return;
+  const full = state.src || images[state.index] || '';
+  const tail = full.split('/').filter(Boolean).pop() || full;
+
+  viewerTitleEl.textContent = 'Viewer';
+  viewerTitleEl.title = 'Viewer';
+
+  viewerSlugEl.textContent = tail;   // solo la coda (es. image5.jpeg)
+  viewerSlugEl.title = full;         // tooltip: path completo
+}
 
 /* ========== 04) Layer effetti (fx-layer) sempre on-top ========== */
 const COMET_SIZE = { min: 100, max: 200 };
@@ -128,6 +139,8 @@ const winTpl     = document.getElementById('win-template');
 const mainBtnClose = document.querySelector('.browser .tb-controls [data-action="close"]');
 const mainBtnMin   = document.querySelector('.browser .tb-controls [data-action="min"]');
 const mainBtnMax   = document.querySelector('.browser .tb-controls [data-action="max"]');
+const viewerTitleEl = document.querySelector('.browser [data-title]');
+const viewerSlugEl  = document.querySelector('.browser [data-slug]');
 
 /* ========== 06) Viewer principale (init, sgretolamento, toolbar) ========== */
 const state = { index:0, src:null, natW:0, natH:0 };
@@ -152,6 +165,7 @@ function setInitialBackground(){
     state.natW = img.naturalWidth;
     state.natH = img.naturalHeight;
     vpImg.src  = src; // object-fit: contain => niente deformazione
+    updateViewerTitle();
     addLine('Welcome in a baba random space');
     addLine('Navigator 2.0 pronto.');
   };
@@ -187,7 +201,7 @@ function changeImageTo(nextIndex){
     const rect = fitRect(prev.natW, prev.natH, vw, vh, FIT_MODE);
 
     vpImg.src = nextSrc;
-
+    updateViewerTitle();
     state.index = (nextIndex + images.length) % images.length;
     state.src   = nextSrc;
     state.natW  = preload.naturalWidth;
@@ -439,6 +453,8 @@ function openMainViewer(){
   main.style.display = '';
   ensureInBounds();
   bringToFront(main);
+  bringToFront(main);
+  updateViewerTitle();
 }
 mainBtnClose?.addEventListener('click', (e)=>{
   e.stopPropagation();
@@ -845,12 +861,6 @@ function nextWallpaper(){
   applyWallpaper((saved + 1) % WALLPAPERS.length);
 }
 
-window.addEventListener('load', ()=>{
-  // ...
-  const saved = Number(localStorage.getItem('wpIndex'));
-  applyWallpaper(Number.isFinite(saved) ? saved : 0);
-  attachWallpaperButtonToBar();
-});
 
 function ensureButtonsBarStyles(bar){
   if(!document.getElementById('btnbar-style')){
@@ -893,15 +903,17 @@ window.addEventListener('load', ()=>{
   centerBrowser();
   setInitialBackground();
   renderDesktop();
-  attachResize(browserEl, 500, 360); // viewer principale stringibile
+  attachResize(browserEl, 500, 360);
   preloadStickers();
 
-  // Wallpaper iniziale = tile.png (pattern)
-  applyWallpaper(0);
+  // Wallpaper iniziale: usa quello salvato, altrimenti il primo
+  const saved = Number(localStorage.getItem('wpIndex'));
+  applyWallpaper(Number.isFinite(saved) ? saved : 0);
 
   // Pulsante per switchare i background
   attachWallpaperButtonToBar();
 });
+
 
 /* ========== 16) Ripristino menu destro ========== */
 document.addEventListener('contextmenu', function restore(e){
