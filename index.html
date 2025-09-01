@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>James Beghelli Space – ’90s Browser Frame</title>
+<link rel="stylesheet" href="css/style.css?v=2025-08-31-02" />
+<script src="js/app.js?v=2025-09-01-08" defer></script>
+
+</head>
+<body>
+    <!-- Desktop con icone-cartella -->
+    <div class="desktop" id="desktop"></div>
+
+    <!-- (opzionale ma consigliato) Layer FX sempre sopra -->
+    <div id="fx-layer" aria-hidden="true"></div>
+    
+  <!-- Finestra stile “browser primi ’90” -->
+  <div class="browser">
+    <div class="titlebar">
+      <span>Navigator – James Beghelli Space</span>
+        <div class="tb-controls">
+        <div class="tb-btn" data-action="min"  title="Minimize"></div>
+        <div class="tb-btn" data-action="max"  title="Maximize"></div>
+        <div class="tb-btn" data-action="close" title="Close"></div>
+        </div>
+    </div>
+    <!-- <div class="menubar">
+      <div>File</div><div>Edit</div><div>View</div><div>Go</div>
+      <div>Bookmarks</div><div>Options</div><div>Help</div>
+    </div> -->
+    <div class="toolbar">
+        <button class="tool-btn" id="tool-back">◀</button>
+        <button class="tool-btn" id="tool-forward">▶</button>
+        <button class="tool-btn" id="tool-reload">↻</button>
+      <div class="addr"><span class="scheme">http://</span><span class="host">jamesbeghelli.space/welcome</span></div>
+    </div>
+
+    <!-- Viewport: immagine NON deformata (object-fit) -->
+    <div class="content">
+      <div class="viewport" id="viewport">
+        <img id="vpImg" alt="" />
+        <!--<h1 class="brand">Benvenuti in James Beghelli Desktop</h1>-->
+        <!-- Lo strato crumble verrà iniettato qui -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Colonna “Netscape Log” sopra i pulsanti -->
+  <div class="side-column" id="log">
+    <div class="side-header">Netscape Log</div>
+    <div class="side-body" id="logBody"></div>
+  </div>
+
+  <!-- Pulsanti ’90s in basso a destra -->
+<div class="action-dock">
+  <button class="win95-btn" id="btn-bio"><span class="emoji">📄</span>Bio</button>
+  <button class="win95-btn" id="btn-saluta"><span class="emoji">👋</span>Say HIHIHI</button>
+</div>
+
+
+  <div id="fx-layer" aria-hidden="true"></div>
+
+  <!-- Template finestra progetto -->
+    <template id="win-template">
+    <div class="win" data-win>
+        <div class="titlebar">
+        <span class="title" data-title>Project</span>
+        <div class="tb-controls">
+            <div class="tb-btn" data-action="min" title="Minimize"></div>
+            <div class="tb-btn" data-action="max" title="Maximize"></div>
+            <div class="tb-btn" data-action="close" title="Close"></div>
+        </div>
+        </div>
+        <!-- <div class="menubar">
+        <div>File</div><div>Edit</div><div>View</div><div>Go</div>
+        <div>Bookmarks</div><div>Options</div><div>Help</div>
+        </div> -->
+        <div class="toolbar">
+        <button class="tool-btn" data-prev>◀</button>
+        <button class="tool-btn" data-next>▶</button>
+        <div class="addr"><span class="scheme">file://</span><span class="host" data-slug></span></div>
+        </div>
+        <div class="content">
+        <div class="viewport">
+            <img class="vpImg" data-img alt="">
+            <div class="win-body" data-desc style="position:absolute;left:12px;bottom:12px;color:#fff;text-shadow:0 1px 0 #000;font-size:12px;max-width:70%;"></div>
+        </div>
+        </div>
+    </div>
+    </template>
+
+    <template id="bio-template">
+        <div class="win" data-win data-pid="bio">
+            <div class="titlebar">
+            <span class="title">Bio</span>
+            <div class="tb-controls">
+                <div class="tb-btn" data-action="min" title="Minimize"></div>
+                <div class="tb-btn" data-action="max" title="Maximize"></div>
+                <div class="tb-btn" data-action="close" title="Close"></div>
+            </div>
+            </div>
+            <div class="menubar">
+            <div>File</div><div>Edit</div><div>View</div><div>Go</div>
+            <div>Bookmarks</div><div>Options</div><div>Help</div>
+            </div>
+            <div class="toolbar">
+            <div class="addr"><span class="scheme">about:</span><span class="host">jamesbeghelli/bio</span></div>
+            </div>
+            <div class="content">
+            <div class="viewport">
+                <div class="bio-body" data-bio></div>
+            </div>
+            </div>
+        </div>
+        </template>
+
+</body>
+</html>
