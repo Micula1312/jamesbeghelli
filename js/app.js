@@ -151,7 +151,7 @@ function setInitialBackground(){
     state.natW = img.naturalWidth;
     state.natH = img.naturalHeight;
     vpImg.src  = src; // object-fit: contain => niente deformazione
-    addLine('Benvenuti nello spazio di James Beghelli');
+    addLine('Welcome in a baba random space');
     addLine('Navigator 2.0 pronto.');
   };
 }
@@ -265,7 +265,7 @@ function preloadStickers(){
 
 btnSaluta?.addEventListener('click', ()=>{
   addLine('Un saluto da James Beghelli.');
-  showToast('Ciao! ’90s online 🤖');
+  //showToast('Ciao! ’90s online 🤖');
   createCometRandom(); // una sola cometa per click
 });
 

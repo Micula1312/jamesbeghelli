@@ -1,0 +1,14 @@
+{
+  "name": "jamesbeghelli-site",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist && mkdir -p dist",
+    "build:js": "esbuild app.js --minify --outfile=dist/app.js",
+    "copy": "cp -R img dist/img && cp index.html dist/index.html && cp .nojekyll dist/.nojekyll",
+    "build": "npm run clean && npm run build:js && npm run copy",
+    "serve": "npx http-server dist -p 8080 -c-1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.5"
+  }
+}
