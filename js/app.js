@@ -34,9 +34,10 @@ const images = [
 ];
 
 // Wallpapers: percorsi dentro /img/wallpapers come richiesto
+/* ===== Wallpapers (desktop) ===== */
 const WALLPAPERS = [
-  { src:'img/wallpapers/tile.png',      opts:{ mode:'tile',   repeat:'repeat',     position:'top left' } },
-  { src:'img/wallpapers/wallpaper.jpg', opts:{ mode:'cover',  repeat:'no-repeat',  position:'center'   } }
+  { src: 'img/wallpapers/wallpaper1.jpg', opts: { mode:'cover', position:'center', repeat:'no-repeat' } },
+  { src: 'img/wallpapers/wallpaper2.jpeg', opts: { mode:'cover', position:'center', repeat:'no-repeat' } },
 ];
 let wpIndex = 0;
 
@@ -666,6 +667,10 @@ function openProjectById(pid){
   // Fill contenuti
   node.querySelector('[data-title]').textContent = p.title;
   node.querySelector('[data-slug]').textContent  = p.slug;
+
+    // tooltip con il testo completo (utile su mobile)
+  node.querySelector('[data-title]').title = p.title || '';
+  node.querySelector('[data-slug]').title  = p.slug  || '';
   const imgEl = node.querySelector('[data-img]');
   const descEl= node.querySelector('[data-desc]');
 
@@ -797,10 +802,24 @@ function setDesktopWallpaper(src, { mode='cover', position='center', repeat='no-
 
 function applyWallpaper(idx=0){
   if(!WALLPAPERS.length) return;
-  const w = WALLPAPERS[ idx % WALLPAPERS.length ];
+  wpIndex = idx % WALLPAPERS.length;
+  const w = WALLPAPERS[wpIndex];
   setDesktopWallpaper(w.src, w.opts || {});
+  try { localStorage.setItem('wpIndex', String(wpIndex)); } catch {}
 }
 
+function nextWallpaper(){
+  if(!WALLPAPERS.length) return;
+  const saved = Number(localStorage.getItem('wpIndex') ?? wpIndex);
+  applyWallpaper((saved + 1) % WALLPAPERS.length);
+}
+
+window.addEventListener('load', ()=>{
+  // ...
+  const saved = Number(localStorage.getItem('wpIndex'));
+  applyWallpaper(Number.isFinite(saved) ? saved : 0);
+  attachWallpaperButtonToBar();
+});
 
 function ensureButtonsBarStyles(bar){
   if(!document.getElementById('btnbar-style')){
